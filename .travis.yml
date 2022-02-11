@@ -51,11 +51,6 @@ jobs:
      env:
        - PY=cp38-cp38
        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
-   - os: linux
-     arch: amd64
-     env:
-       - PY=cp39-cp39
-       - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
 before_install:
 - docker pull $DOCKER_IMAGE
 - if [ "${TRAVIS_CPU_ARCH}" != "arm64" ]; then
@@ -84,7 +79,7 @@ before_install:
     /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
     auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_aarch64.whl -w /wheelhouse" &&
     sudo find / -name "*manylinux2014_aarch64.whl";
-    docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux2014_aarch64.whl ./
+    docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux2014_aarch64.whl ./;
   fi
 - sudo find / -name "*manylinux1_x86_64.whl"
 - docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux1_x86_64.whl ./
