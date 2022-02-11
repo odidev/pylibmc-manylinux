@@ -58,7 +58,7 @@ jobs:
        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
 before_install:
 - docker pull $DOCKER_IMAGE
-- if [ "${TRAVIS_CPU_ARCH}" == "arm64" ]; then
+- if [ "${TRAVIS_CPU_ARCH}" != "arm64" ]; then
     docker run --name "aaa" $DOCKER_IMAGE /bin/sh -c "set -x && [ "x$LIBMEMCACHED_VERSION" != x ] && cd && yum update -y && mkdir -p /wheelhouse &&
     yum install cyrus-sasl-devel zlib-devel curl -y &&
     curl -L -o libmemcached-hotfixes.tar.gz https://github.com/memcachier/libmemcached/archive/1.0.19.tar.gz &&
