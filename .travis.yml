@@ -75,9 +75,7 @@ before_install:
     /opt/python/${PY}/bin/pip install --upgrade auditwheel &&
     git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
     /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
-    auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_x86_64.whl -w /wheelhouse" &&
-    yum install -y sudo &&
-    sudo find / -name "*manylinux1_x86_64.whl";
+    auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_x86_64.whl -w /wheelhouse";
   else
     docker run --name "aaa" $DOCKER_IMAGE /bin/sh -c "yum update -y && mkdir -p /wheelhouse &&
     git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
@@ -85,10 +83,10 @@ before_install:
     yum install -y sudo &&
     /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
     auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_aarch64.whl -w /wheelhouse" &&
-    sudo find / -name "*manylinux2014_aarch64.whl" &&
-    ls -l /wheelhouse;
+    sudo find / -name "*manylinux2014_aarch64.whl";
+    docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux2014_aarch64.whl ./
   fi
-- find / -name "*manylinux1_x86_64.whl"
+- sudo find / -name "*manylinux1_x86_64.whl"
 - docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux1_x86_64.whl ./
 script:
 - ls
