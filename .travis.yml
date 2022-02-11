@@ -76,18 +76,17 @@ before_install:
     git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
     /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
     auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_x86_64.whl -w /wheelhouse" &&
-    find . -name "*manylinux1_x86_64.whl" &&
-    ls -l /wheelhouse;
+    find / -name "*manylinux1_x86_64.whl";
   else
     docker run --name "aaa" $DOCKER_IMAGE /bin/sh -c "yum update -y && mkdir -p /wheelhouse &&
     git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
     yum install -y libmemcached-devel &&
     /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
     auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_aarch64.whl -w /wheelhouse" &&
-    find . -name "*manylinux2014_aarch64.whl" &&
+    find / -name "*manylinux2014_aarch64.whl" &&
     ls -l /wheelhouse;
   fi
-- find . -name "*manylinux1_x86_64.whl"
+- find / -name "*manylinux1_x86_64.whl"
 - docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux1_x86_64.whl ./
 script:
 - ls
