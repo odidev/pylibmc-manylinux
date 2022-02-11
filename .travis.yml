@@ -82,8 +82,8 @@ before_install:
     /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
     auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux2014_aarch64.whl -w /wheelhouse";
   fi
-- find . -name "*linux2014_aarch64.whl"
-- docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux2014_aarch64.whl ./
+- find . -name "*manylinux1_x86_64.whl"
+- docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux1_x86_64.whl ./
 script:
 - ls
 deploy:
