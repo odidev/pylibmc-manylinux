@@ -12,27 +12,78 @@ jobs:
      env:
        - PY=cp27-cp27mu
        - DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+   - os: linux
+     arch: amd64
+     env:
+       - PY=cp35-cp35m
+       - DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+   - os: linux
+     arch: amd64
+     env:
+       - PY=cp36-cp36m
+       - DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+   - os: linux
+     arch: amd64
+     env:
+       - PY=cp37-cp37m
+       - DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+   - os: linux
+     arch: arm64-graviton2
+     group: edge
+     dist: focal
+     virt: vm
+     env:
+       - PY=cp36-cp36m
+       - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
+   - os: linux
+     arch: arm64-graviton2
+     group: edge
+     dist: focal
+     virt: vm
+     env:
+       - PY=cp37-cp37m
+       - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
+   - os: linux
+     arch: arm64-graviton2
+     group: edge
+     dist: focal
+     virt: vm
+     env:
+       - PY=cp38-cp38
+       - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
+   - os: linux
+     arch: amd64
+     env:
+       - PY=cp39-cp39
+       - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
 before_install:
 - docker pull $DOCKER_IMAGE
-- docker run --name "aaa" $DOCKER_IMAGE /bin/sh -c "set -x && [ "x$LIBMEMCACHED_VERSION" != x ] && cd && yum update -y && mkdir -p /wheelhouse &&
-  yum install cyrus-sasl-devel zlib-devel curl -y &&
-  curl -L -o libmemcached-hotfixes.tar.gz https://github.com/memcachier/libmemcached/archive/1.0.19.tar.gz &&
-  tar -xvf libmemcached-hotfixes.tar.gz && 
-  mv libmemcached-1.0.19 libmemcached-hotfixes &&
-  curl -L -o libmemcached-${LIBMEMCACHED_VERSION}.tar.gz https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-${LIBMEMCACHED_VERSION}.tar.gz &&
-  tar -xvf libmemcached-${LIBMEMCACHED_VERSION}.tar.gz &&
-  cp libmemcached-hotfixes/libmemcached/sasl.cc libmemcached-1.0.18/libmemcached/sasl.cc &&
-  cd libmemcached-${LIBMEMCACHED_VERSION} &&
-  ./configure --enable-sasl &&
-  make &&
-  make install &&
-  cd ../ &&
-  /opt/python/${PY}/bin/pip install --upgrade auditwheel &&
-  git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
-  /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
-  auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_x86_64.whl -w /wheelhouse"
-- find . -name "linux_x86_64.whl"
-- docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux1_x86_64.whl ./
+- if [ "${TRAVIS_CPU_ARCH}" == "arm64" ]; then
+    docker run --name "aaa" $DOCKER_IMAGE /bin/sh -c "set -x && [ "x$LIBMEMCACHED_VERSION" != x ] && cd && yum update -y && mkdir -p /wheelhouse &&
+    yum install cyrus-sasl-devel zlib-devel curl -y &&
+    curl -L -o libmemcached-hotfixes.tar.gz https://github.com/memcachier/libmemcached/archive/1.0.19.tar.gz &&
+    tar -xvf libmemcached-hotfixes.tar.gz && 
+    mv libmemcached-1.0.19 libmemcached-hotfixes &&
+    curl -L -o libmemcached-${LIBMEMCACHED_VERSION}.tar.gz https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-${LIBMEMCACHED_VERSION}.tar.gz &&
+    tar -xvf libmemcached-${LIBMEMCACHED_VERSION}.tar.gz &&
+    cp libmemcached-hotfixes/libmemcached/sasl.cc libmemcached-1.0.18/libmemcached/sasl.cc &&
+    cd libmemcached-${LIBMEMCACHED_VERSION} &&
+    ./configure --enable-sasl &&
+    make &&
+    make install &&
+    cd ../ &&
+    /opt/python/${PY}/bin/pip install --upgrade auditwheel &&
+    git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
+    /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
+    auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_x86_64.whl -w /wheelhouse"
+  else
+    docker run --name "aaa" $DOCKER_IMAGE /bin/sh -c "yum update -y && mkdir -p /wheelhouse &&
+    git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
+    /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
+    auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux2014_aarch64.whl -w /wheelhouse"
+  fi
+- find . -name "*linux2014_aarch64.whl"
+- docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux2014_aarch64.whl ./
 script:
 - ls
 deploy:
