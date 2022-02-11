@@ -75,12 +75,12 @@ before_install:
     /opt/python/${PY}/bin/pip install --upgrade auditwheel &&
     git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
     /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
-    auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_x86_64.whl -w /wheelhouse"
+    auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_x86_64.whl -w /wheelhouse";
   else
     docker run --name "aaa" $DOCKER_IMAGE /bin/sh -c "yum update -y && mkdir -p /wheelhouse &&
     git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
     /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
-    auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux2014_aarch64.whl -w /wheelhouse"; \
+    auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux2014_aarch64.whl -w /wheelhouse";
   fi
 - find . -name "*linux2014_aarch64.whl"
 - docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux2014_aarch64.whl ./
