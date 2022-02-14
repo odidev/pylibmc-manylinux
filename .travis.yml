@@ -51,36 +51,57 @@ jobs:
      env:
        - PY=cp38-cp38
        - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
+   - os: osx
+     env:
+       - TERRYFY_PYTHON='macpython 2.7.17'
+   - os: osx
+     env:
+       - TERRYFY_PYTHON='macpython 3.5'
+   - os: osx
+     env:
+       - TERRYFY_PYTHON='macpython 3.6.2'
+   - os: osx
+     env:
+       - TERRYFY_PYTHON='macpython 3.7.0'
 before_install:
-- docker pull $DOCKER_IMAGE
-- if [ "${TRAVIS_CPU_ARCH}" != "arm64" ]; then
-    docker run --name "aaa" $DOCKER_IMAGE /bin/sh -c "set -x && [ "x$LIBMEMCACHED_VERSION" != x ] && cd && yum update -y && mkdir -p /wheelhouse &&
-    yum install cyrus-sasl-devel zlib-devel curl -y &&
-    curl -L -o libmemcached-hotfixes.tar.gz https://github.com/memcachier/libmemcached/archive/1.0.19.tar.gz &&
-    tar -xvf libmemcached-hotfixes.tar.gz && 
-    mv libmemcached-1.0.19 libmemcached-hotfixes &&
-    curl -L -o libmemcached-${LIBMEMCACHED_VERSION}.tar.gz https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-${LIBMEMCACHED_VERSION}.tar.gz &&
-    tar -xvf libmemcached-${LIBMEMCACHED_VERSION}.tar.gz &&
-    cp libmemcached-hotfixes/libmemcached/sasl.cc libmemcached-1.0.18/libmemcached/sasl.cc &&
-    cd libmemcached-${LIBMEMCACHED_VERSION} &&
-    ./configure --enable-sasl &&
-    make &&
-    make install &&
-    cd ../ &&
-    /opt/python/${PY}/bin/pip install --upgrade auditwheel &&
-    git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
-    /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
-    auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_x86_64.whl -w /wheelhouse";
-    docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux_2_5_x86_64.manylinux1_x86_64.whl ./;
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    git clone https://github.com/MacPython/terryfy;
+    source terryfy/travis_tools.sh;
+    get_python_environment $TERRYFY_PYTHON venv;
+    git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc;
+    pip wheel . -w wheelhouse;
+    auditwheel repair wheelhouse/pylibmc-${VERSION}-${PY}-*.whl -w /wheelhouse";
   else
-    docker run --name "aaa" $DOCKER_IMAGE /bin/sh -c "yum update -y && mkdir -p /wheelhouse &&
-    git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
-    yum install -y libmemcached-devel &&
-    yum install -y sudo &&
-    /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
-    auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_aarch64.whl -w /wheelhouse" &&
-    sudo find / -name "*manylinux2014_aarch64.whl";
-    docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux_2_17_aarch64.manylinux2014_aarch64.whl ./;
+    docker pull $DOCKER_IMAGE;
+   if [ "${TRAVIS_CPU_ARCH}" != "arm64" ]; then
+     docker run --name "aaa" $DOCKER_IMAGE /bin/sh -c "set -x && [ "x$LIBMEMCACHED_VERSION" != x ] && cd && yum update -y && mkdir -p /wheelhouse &&
+     yum install cyrus-sasl-devel zlib-devel curl -y &&
+     curl -L -o libmemcached-hotfixes.tar.gz https://github.com/memcachier/libmemcached/archive/1.0.19.tar.gz &&
+     tar -xvf libmemcached-hotfixes.tar.gz && 
+     mv libmemcached-1.0.19 libmemcached-hotfixes &&
+     curl -L -o libmemcached-${LIBMEMCACHED_VERSION}.tar.gz https://launchpad.net/libmemcached/1.0/1.0.18/+download/libmemcached-${LIBMEMCACHED_VERSION}.tar.gz &&
+     tar -xvf libmemcached-${LIBMEMCACHED_VERSION}.tar.gz &&
+     cp libmemcached-hotfixes/libmemcached/sasl.cc libmemcached-1.0.18/libmemcached/sasl.cc &&
+     cd libmemcached-${LIBMEMCACHED_VERSION} &&
+     ./configure --enable-sasl &&
+     make &&
+     make install &&
+     cd ../ &&
+     /opt/python/${PY}/bin/pip install --upgrade auditwheel &&
+     git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
+     /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
+     auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_x86_64.whl -w /wheelhouse";
+     docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux_2_5_x86_64.manylinux1_x86_64.whl ./;
+   else
+     docker run --name "aaa" $DOCKER_IMAGE /bin/sh -c "yum update -y && mkdir -p /wheelhouse &&
+     git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc &&
+     yum install -y libmemcached-devel &&
+     yum install -y sudo &&
+     /opt/python/${PY}/bin/pip wheel . -w /wheelhouse &&
+     auditwheel repair /wheelhouse/pylibmc-${VERSION}-${PY}-linux_aarch64.whl -w /wheelhouse" &&
+     sudo find / -name "*manylinux2014_aarch64.whl";
+     docker cp aaa:/wheelhouse/pylibmc-${VERSION}-${PY}-manylinux_2_17_aarch64.manylinux2014_aarch64.whl ./;
+   fi
   fi
 script:
 - ls
