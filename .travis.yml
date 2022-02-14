@@ -70,7 +70,7 @@ before_install:
     get_python_environment $TERRYFY_PYTHON venv;
     git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc;
     pip wheel . -w wheelhouse;
-    auditwheel repair wheelhouse/pylibmc-${VERSION}-${PY}-*.whl -w /wheelhouse";
+    auditwheel repair wheelhouse/pylibmc-${VERSION}-${PY}-*.whl -w /wheelhouse;
   else
     docker pull $DOCKER_IMAGE;
     if [ "${TRAVIS_CPU_ARCH}" != "arm64" ]; then
