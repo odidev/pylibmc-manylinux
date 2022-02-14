@@ -63,6 +63,10 @@ jobs:
    - os: osx
      env:
        - TERRYFY_PYTHON='macpython 3.7.0'
+   - os: osx
+     arch: arm64
+     env:
+       - TERRYFY_PYTHON='macpython 3.7.0'
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     git clone https://github.com/MacPython/terryfy;
@@ -71,7 +75,8 @@ before_install:
     git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc;
     brew install libmemcached;
     pip wheel . -w wheelhouse;
-    auditwheel repair wheelhouse/pylibmc-${VERSION}-${PY}-*.whl -w /wheelhouse;
+    ls -l wheelhouse/;
+    cp wheelhouse/pylibmc-${VERSION}-${PY}-macosx_10_9_x86_64.whl ../../;
   else
     docker pull $DOCKER_IMAGE;
     if [ "${TRAVIS_CPU_ARCH}" != "arm64" ]; then
@@ -112,6 +117,7 @@ deploy:
   file:
     - "pylibmc-${VERSION}-${PY}-manylinux_2_5_x86_64.manylinux1_x86_64.whl"
     - "pylibmc-${VERSION}-${PY}-manylinux_2_17_aarch64.manylinux2014_aarch64.whl"
+    - "pylibmc-${VERSION}-${PY}-macosx_10_9_x86_64.whl"
   skip_cleanup: true
   overwrite: true
   all_branches: true
