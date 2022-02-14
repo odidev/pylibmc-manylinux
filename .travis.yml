@@ -69,6 +69,7 @@ before_install:
     source terryfy/travis_tools.sh;
     get_python_environment $TERRYFY_PYTHON venv;
     git clone -b ${VERSION} git://github.com/lericson/pylibmc/ && cd pylibmc;
+    brew install libmemcached;
     pip wheel . -w wheelhouse;
     auditwheel repair wheelhouse/pylibmc-${VERSION}-${PY}-*.whl -w /wheelhouse;
   else
